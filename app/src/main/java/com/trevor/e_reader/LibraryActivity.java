@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 public class LibraryActivity extends AppCompatActivity {
+    // example book titles
     String[] bookTitles = {"Book Title", "Book Title", "Book Title", "Book Title", "Book Title",
                            "Book Title", "Book Title", "Book Title", "Book Title", "Book Title",
                            "Book Title", "Book Title", "Book Title", "Book Title", "Book Title",
@@ -18,13 +19,10 @@ public class LibraryActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_library);
-
         setTitle("Library");
-
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        ListView books = findViewById(R.id.list_books);
-
+        // creating the adapter for the list of downloaded books
         ArrayAdapter adapter = new ArrayAdapter<String>(this,
                 R.layout.activity_book_list, bookTitles);
 
