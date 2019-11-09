@@ -9,6 +9,7 @@ public class Book {
     private String url;
     private String position;
     private Date lastRead;
+    private String path;
 
     public Book(String title, String author, String url) {
         this.title = title;
@@ -31,7 +32,7 @@ public class Book {
     }
 
     public String getUrl() {
-        return this.author;
+        return this.url;
     }
 
     public String getDateLastRead() {
@@ -43,6 +44,9 @@ public class Book {
         return this.position;
     }
 
+    public String getPath() {
+        return this.path;
+    }
 
     public void setId(String id) {
         this.id = id;
@@ -57,7 +61,7 @@ public class Book {
     }
 
     public void setUrl(String url) {
-        this.author = author;
+        this.url = url;
     }
 
     public  void setDate(Date date) {
@@ -65,6 +69,10 @@ public class Book {
     }
     public void setPosition(String position) {
         this.position = position;
+    }
+
+    public void setPath(String path) {
+        this.path = path;
     }
 
 

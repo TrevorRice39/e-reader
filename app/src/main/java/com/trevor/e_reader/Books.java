@@ -6,6 +6,7 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
+import android.os.AsyncTask;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -19,6 +20,8 @@ import java.nio.Buffer;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.concurrent.ExecutionException;
+
 import com.opencsv.CSVReader;
 
 public class Books extends SQLiteOpenHelper {
@@ -36,6 +39,7 @@ public class Books extends SQLiteOpenHelper {
     public static final String DOWNLOADED_TABLE_NAME = "downloaded"; // downloaded books
     // downloaded table uses the keys above as well as these
     public static final String KEY_POSITION = "position";
+    public static final String KEY_PATH = "file_path";
     public static final String KEY_DATE_LAST_READ = "date_read";
 
 
@@ -112,6 +116,7 @@ public class Books extends SQLiteOpenHelper {
             values.put(KEY_IS_DOWNLOADED, "false");
         }
 
+        values.put(KEY_PATH, book.getPath());
         values.put(KEY_TITLE, book.getTitle());
         values.put(KEY_AUTHOR, book.getAuthor());
         values.put(KEY_URL, book.getUrl());
@@ -128,9 +133,23 @@ public class Books extends SQLiteOpenHelper {
     }
 
     // download a book
-    public void downloadBook(int id) {
-        Book book = getBooks("" + id, AVAILABLE_TABLE_NAME).get(0);
-        String text = fetchItem(book.getUrl());
+    public void downloadBook(String id) {
+        Book book = getBooks(id, AVAILABLE_TABLE_NAME).get(0);
+        System.out.println("id = " + book.getId());
+        String s = "";
+        try {
+            s = new DownloadBook().execute(book.getUrl()).get();
+        }
+        catch (ExecutionException e) {
+
+        }
+        catch (InterruptedException e) {
+
+        }
+
+        SQLiteDatabase db = getWritableDatabase();
+        addBook(book, DOWNLOADED_TABLE_NAME, db);
+        System.out.println("stuff " + s);
     }
     // add a new transaction
 //    public void newTransaction( long date, String category, double amount, String payee ) {
@@ -193,11 +212,9 @@ public class Books extends SQLiteOpenHelper {
             // convert our filter string into an "array" for the query params
             String extFilter = "%" + filter + "%";
             String[] params = {extFilter};
-
+            System.out.println(params);
             cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME +
-                    " WHERE " + KEY_ID + " = ?", params);
-//            cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME +
-//                    " WHERE " + KEY_PAYEE + " LIKE 'Wal%'", null);
+                    " WHERE " + KEY_TITLE + " LIKE ?", params);
 
         }
 
@@ -208,6 +225,7 @@ public class Books extends SQLiteOpenHelper {
                 String title = cursor.getString(cursor.getColumnIndex(KEY_TITLE));
                 String author = cursor.getString(cursor.getColumnIndex(KEY_AUTHOR));
                 String url = cursor.getString(cursor.getColumnIndex(KEY_URL));
+                String path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
                 Date date = new Date();
                 String position = "";
                 if (TABLE_NAME.equals("downloaded")) {
@@ -221,6 +239,7 @@ public class Books extends SQLiteOpenHelper {
                 book.setUrl(url);
                 book.setDate(date);
                 book.setPosition(position);
+                book.setPath(path);
                 books.add(book);
             } while (cursor.moveToNext());
 
@@ -230,32 +249,44 @@ public class Books extends SQLiteOpenHelper {
         return books;
     }
 
-    // function to get one item (current data or forecast) from the server
-    protected String fetchItem( String str_url ) {
-        try {
-            // assemble the string and the search request
-            StringBuilder response = new StringBuilder();
-            URL url = new URL(str_url);
+    class DownloadBook extends AsyncTask<String, Void, String> {
+        @Override
+        protected String doInBackground(String ... params) {
+            String str_url = params[0];
+            try {
+                // assemble the string and the search request
+                StringBuilder response = new StringBuilder();
+                URL url = new URL(str_url);
 
-            // make the connection
-            HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
+                // make the connection
+                HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
+                System.out.println("opened ");
 
-            // did it do ok?
-            if ( httpconn.getResponseCode() == HttpURLConnection.HTTP_OK ) {
-                BufferedReader input = new BufferedReader(
-                        new InputStreamReader(httpconn.getInputStream()), 8192);
-                String strLine = null;
-                while ((strLine = input.readLine()) != null) {
-                    // have more data
-                    response.append(strLine);
-                    response.append("\n");
+                // did it do ok?
+                if ( httpconn.getResponseCode() == HttpURLConnection.HTTP_OK ) {
+                    BufferedReader input = new BufferedReader(
+                            new InputStreamReader(httpconn.getInputStream()), 8192);
+                    String strLine = null;
+                    while ((strLine = input.readLine()) != null) {
+                        System.out.println("reading");
+                        // have more data
+                        response.append(strLine);
+                        response.append("\n");
+                    }
+                    input.close();
+                    return response.toString();
                 }
-                input.close();
-                return response.toString();
+            } catch ( IOException e ) {
+                e.printStackTrace();
+                return e.getMessage();
             }
-        } catch ( IOException e ) {
-            return e.getMessage();
+            return "";
         }
-        return "";
+
+        @Override
+        protected void onPostExecute(String result) {
+            System.out.println("big");
+            System.out.println(result);
+        }
     }
 }
