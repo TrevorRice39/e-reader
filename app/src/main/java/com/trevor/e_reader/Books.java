@@ -9,10 +9,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.lang.reflect.Array;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -67,8 +69,9 @@ public class Books extends SQLiteOpenHelper {
                 + KEY_TITLE + " TEXT,"
                 + KEY_AUTHOR + " TEXT,"
                 + KEY_URL + " TEXT,"
-                + KEY_POSITION + "TEXT,"
-                + KEY_DATE_LAST_READ + "TEXT)" );
+                + KEY_POSITION + " TEXT,"
+                + KEY_PATH + " TEXT,"
+                + KEY_DATE_LAST_READ + " TEXT)" );
 
         initializeAvailableBooks(db);
     }
@@ -111,12 +114,13 @@ public class Books extends SQLiteOpenHelper {
             values.put(KEY_ID, book.getId());
             values.put(KEY_DATE_LAST_READ, book.getDateLastRead());
             values.put(KEY_POSITION, book.getPosition());
+            values.put(KEY_PATH, book.getPath());
         }
         else {
             values.put(KEY_IS_DOWNLOADED, "false");
         }
 
-        values.put(KEY_PATH, book.getPath());
+
         values.put(KEY_TITLE, book.getTitle());
         values.put(KEY_AUTHOR, book.getAuthor());
         values.put(KEY_URL, book.getUrl());
@@ -147,6 +151,20 @@ public class Books extends SQLiteOpenHelper {
 
         }
 
+        String filename = book.getTitle().replace(" ", "");
+        book.setPath(filename);
+        String[] params = {s, filename};
+        String output = "";
+        try {
+            s = new DownloadBook().execute(book.getUrl()).get();
+        }
+        catch (ExecutionException e) {
+            System.out.println("oof");
+        }
+        catch (InterruptedException e) {
+            System.out.println("nother oof");
+        }
+        System.out.println(output);
         SQLiteDatabase db = getWritableDatabase();
         addBook(book, DOWNLOADED_TABLE_NAME, db);
         System.out.println("stuff " + s);
@@ -225,12 +243,13 @@ public class Books extends SQLiteOpenHelper {
                 String title = cursor.getString(cursor.getColumnIndex(KEY_TITLE));
                 String author = cursor.getString(cursor.getColumnIndex(KEY_AUTHOR));
                 String url = cursor.getString(cursor.getColumnIndex(KEY_URL));
-                String path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
+                String path = "";
                 Date date = new Date();
                 String position = "";
                 if (TABLE_NAME.equals("downloaded")) {
                     //date = cursor.getString(cursor.getColumnIndex(KEY_DATE_LAST_READ));
                     position = cursor.getString(cursor.getColumnIndex(KEY_POSITION));
+                    path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
                 }
                 Book book = new Book();
                 book.setId(id);
@@ -287,6 +306,25 @@ public class Books extends SQLiteOpenHelper {
         protected void onPostExecute(String result) {
             System.out.println("big");
             System.out.println(result);
+        }
+    }
+
+    class WriteBook extends AsyncTask<String,Void,Exception> {
+        protected Exception doInBackground(String... data) {
+            try {
+                // oopen the file
+                OutputStream out = context.openFileOutput(data[1], Context.MODE_PRIVATE);
+                // output the data
+                out.write(data[0].getBytes());
+                // done
+                out.close();
+            } catch (Exception e) {
+                // ignore it
+                return e;
+            }
+
+            // all went well
+            return null;
         }
     }
 }
