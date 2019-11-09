@@ -34,23 +34,32 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         // which item did they click?
         Intent intent;
+        ArrayList<Book> listOfBooks;
+        String[] bookArray;
         switch ( item.getItemId() ) {
             // view the library of downloaded books
             case R.id.view_library:
                 intent = new Intent(MainActivity.this, LibraryActivity.class);
+                listOfBooks = books.getBooks("", Books.DOWNLOADED_TABLE_NAME);
+                bookArray = new String[listOfBooks.size()];
+
+                for (int i = 0; i < bookArray.length; i++) {
+                    bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
+                }
+                intent.putExtra("books", bookArray);
                 startActivity(intent);
                 return true;
 
             // go to activity to download books
             case R.id.download_books:
                 intent = new Intent(MainActivity.this, DownloadBooksActivity.class);
-                ArrayList<Book> listOfBooks = books.getBooks("", Books.AVAILABLE_TABLE_NAME);
-                String[] titles = new String[listOfBooks.size()];
+                listOfBooks = books.getBooks("", Books.AVAILABLE_TABLE_NAME);
+                bookArray = new String[listOfBooks.size()];
 
-                for (int i = 0; i < titles.length; i++) {
-                    titles[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
+                for (int i = 0; i < bookArray.length; i++) {
+                    bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
                 }
-                intent.putExtra("titles", titles);
+                intent.putExtra("books", bookArray);
                 startActivity(intent);
                 return true;
 

@@ -22,7 +22,7 @@ public class DownloadBooksActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
         Intent intent = this.getIntent();
-        bookTitles = intent.getStringArrayExtra("titles");
+        bookTitles = intent.getStringArrayExtra("books");
         // creating the adapter for the list of downloaded books
         ArrayAdapter adapter = new ArrayAdapter<String>(this,
                 R.layout.activity_book_list, bookTitles);
