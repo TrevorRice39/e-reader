@@ -1,6 +1,8 @@
 package com.trevor.e_reader;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.view.MenuItem;
 
 import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
@@ -26,6 +28,20 @@ public class SettingsActivity extends AppCompatActivity {
         @Override
         public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey);
+        }
+    }
+    // respond to a menu item click
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // which item did they click?
+        Intent intent;
+        switch ( item.getItemId() ) {
+            // return back home
+            case android.R.id.home:
+                finish();
+                return true;
+            default:
+                return false;
         }
     }
 }
