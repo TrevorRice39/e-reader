@@ -48,7 +48,6 @@ public class DownloadBooksActivity extends AppCompatActivity {
                             public void onClick(DialogInterface dialog, int whichButton) {
 
                                 Toast.makeText(getApplicationContext(), "Downloading...", Toast.LENGTH_SHORT).show();
-                                System.out.println("id is " + bookIds[i]);
                                 books.downloadBook(bookIds[i]);
                                 // add to library and show downloading
                             }})

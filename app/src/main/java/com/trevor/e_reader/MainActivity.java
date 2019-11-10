@@ -2,11 +2,13 @@ package com.trevor.e_reader;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -48,12 +50,12 @@ public class MainActivity extends AppCompatActivity {
                 bookArray = new String[listOfBooks.size()];
                 bookIds = new String[listOfBooks.size()];
                 for (int i = 0; i < bookArray.length; i++) {
-                    bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
+                    bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor() + " " + listOfBooks.get(i).getId();
                     bookIds[i] = listOfBooks.get(i).getId();
                 }
                 intent.putExtra(EXTRA_BOOK_ID, bookArray);
                 intent.putExtra(EXTRA_BOOK_IDS_ID, bookIds);
-                startActivity(intent);
+                startActivityForResult(intent, 100);
                 return true;
 
             // go to activity to download books
@@ -64,7 +66,7 @@ public class MainActivity extends AppCompatActivity {
                 bookIds = new String[listOfBooks.size()];
                 for (int i = 0; i < bookArray.length; i++) {
                     bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
-                    bookIds[i] = listOfBooks.get(i).getTitle();
+                    bookIds[i] = listOfBooks.get(i).getId();
                 }
                 intent.putExtra(EXTRA_BOOK_ID, bookArray);
                 intent.putExtra(EXTRA_BOOK_IDS_ID, bookIds);
@@ -81,4 +83,19 @@ public class MainActivity extends AppCompatActivity {
                 return false;
         }
     }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if(resultCode == Activity.RESULT_OK){
+            TextView book = findViewById(R.id.tv_book_text);
+            String result = data.getStringExtra(EXTRA_BOOK_ID);
+            book.clearComposingText();
+            book.setText("");
+            book.setText(result.substring(0, 200));
+        }
+        if (resultCode == Activity.RESULT_CANCELED) {
+            //Write your code if there's no result
+        }
+    }//onA
 }

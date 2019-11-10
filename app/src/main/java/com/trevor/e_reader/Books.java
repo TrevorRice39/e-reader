@@ -7,8 +7,11 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Environment;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
@@ -44,10 +47,7 @@ public class Books extends SQLiteOpenHelper {
     public static final String KEY_PATH = "file_path";
     public static final String KEY_DATE_LAST_READ = "date_read";
 
-
-
     Context context;
-
     // constructor
     public Books(Context c){
         super(c,DATABASE_NAME, null, DATABASE_VERSION);
@@ -65,7 +65,7 @@ public class Books extends SQLiteOpenHelper {
                 + KEY_IS_DOWNLOADED + " TEXT )");
 
         db.execSQL("CREATE TABLE " + DOWNLOADED_TABLE_NAME + "("
-                + KEY_ID + " TEXT,"
+                + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_TITLE + " TEXT,"
                 + KEY_AUTHOR + " TEXT,"
                 + KEY_URL + " TEXT,"
@@ -88,7 +88,6 @@ public class Books extends SQLiteOpenHelper {
     private ArrayList<Book> readAvailableBooks() {
         ArrayList<Book> books = new ArrayList<>();
         try {
-
             InputStream is = context.getResources().openRawResource(R.raw.books);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
@@ -120,7 +119,6 @@ public class Books extends SQLiteOpenHelper {
             values.put(KEY_IS_DOWNLOADED, "false");
         }
 
-
         values.put(KEY_TITLE, book.getTitle());
         values.put(KEY_AUTHOR, book.getAuthor());
         values.put(KEY_URL, book.getUrl());
@@ -139,35 +137,24 @@ public class Books extends SQLiteOpenHelper {
     // download a book
     public void downloadBook(String id) {
         Book book = getBooks(id, AVAILABLE_TABLE_NAME).get(0);
-        System.out.println("id = " + book.getId());
         String s = "";
         try {
             s = new DownloadBook().execute(book.getUrl()).get();
         }
-        catch (ExecutionException e) {
+        catch (ExecutionException e) { e.printStackTrace();}
+        catch (InterruptedException e) { e.printStackTrace();}
 
-        }
-        catch (InterruptedException e) {
-
-        }
-
-        String filename = book.getTitle().replace(" ", "");
+        String filename = context.getFilesDir().getPath().toString() + "/" + book.getTitle().replace(" ", "") + ".txt";
         book.setPath(filename);
         String[] params = {s, filename};
         String output = "";
         try {
-            s = new DownloadBook().execute(book.getUrl()).get();
+            output = new WriteBook().execute(params).get();
         }
-        catch (ExecutionException e) {
-            System.out.println("oof");
-        }
-        catch (InterruptedException e) {
-            System.out.println("nother oof");
-        }
-        System.out.println(output);
+        catch (ExecutionException e) { e.printStackTrace();}
+        catch (InterruptedException e) { e.printStackTrace();}
         SQLiteDatabase db = getWritableDatabase();
         addBook(book, DOWNLOADED_TABLE_NAME, db);
-        System.out.println("stuff " + s);
     }
     // add a new transaction
 //    public void newTransaction( long date, String category, double amount, String payee ) {
@@ -228,11 +215,10 @@ public class Books extends SQLiteOpenHelper {
             // --  try db.query instead? --
         } else {
             // convert our filter string into an "array" for the query params
-            String extFilter = "%" + filter + "%";
-            String[] params = {extFilter};
-            System.out.println(params);
+
+            String[] params = {filter};
             cursor = db.rawQuery("SELECT * FROM " + TABLE_NAME +
-                    " WHERE " + KEY_TITLE + " LIKE ?", params);
+                    " WHERE " + KEY_ID + " = ?", params);
 
         }
 
@@ -279,7 +265,6 @@ public class Books extends SQLiteOpenHelper {
 
                 // make the connection
                 HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
-                System.out.println("opened ");
 
                 // did it do ok?
                 if ( httpconn.getResponseCode() == HttpURLConnection.HTTP_OK ) {
@@ -287,7 +272,6 @@ public class Books extends SQLiteOpenHelper {
                             new InputStreamReader(httpconn.getInputStream()), 8192);
                     String strLine = null;
                     while ((strLine = input.readLine()) != null) {
-                        System.out.println("reading");
                         // have more data
                         response.append(strLine);
                         response.append("\n");
@@ -304,23 +288,21 @@ public class Books extends SQLiteOpenHelper {
 
         @Override
         protected void onPostExecute(String result) {
-            System.out.println("big");
-            System.out.println(result);
+            System.out.println("finished downloading");
         }
     }
 
-    class WriteBook extends AsyncTask<String,Void,Exception> {
-        protected Exception doInBackground(String... data) {
+    class WriteBook extends AsyncTask<String,Void,String> {
+        protected String doInBackground(String... data) {
             try {
-                // oopen the file
-                OutputStream out = context.openFileOutput(data[1], Context.MODE_PRIVATE);
-                // output the data
-                out.write(data[0].getBytes());
-                // done
-                out.close();
+
+                FileOutputStream fis = new FileOutputStream (new File(data[1]));  // 2nd line
+                fis.write(data[0].getBytes());
+
+                fis.close();
             } catch (Exception e) {
-                // ignore it
-                return e;
+                e.printStackTrace();
+                return e.getMessage();
             }
 
             // all went well
