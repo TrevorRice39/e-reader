@@ -106,7 +106,7 @@ public class Books extends SQLiteOpenHelper {
 
         return books;
     }
-    private void addBook(Book book, String TABLE_NAME, SQLiteDatabase db) { ;
+    public void addBook(Book book, String TABLE_NAME, SQLiteDatabase db) { ;
         ContentValues values = new ContentValues();
 
         if (TABLE_NAME.equals(DOWNLOADED_TABLE_NAME)) {
@@ -135,27 +135,7 @@ public class Books extends SQLiteOpenHelper {
     }
 
     // download a book
-    public void downloadBook(String id) {
-        Book book = getBooks(id, AVAILABLE_TABLE_NAME).get(0);
-        String s = "";
-        try {
-            s = new DownloadBook().execute(book.getUrl()).get();
-        }
-        catch (ExecutionException e) { e.printStackTrace();}
-        catch (InterruptedException e) { e.printStackTrace();}
 
-        String filename = context.getFilesDir().getPath().toString() + "/" + book.getTitle().replace(" ", "") + ".txt";
-        book.setPath(filename);
-        String[] params = {s, filename};
-        String output = "";
-        try {
-            output = new WriteBook().execute(params).get();
-        }
-        catch (ExecutionException e) { e.printStackTrace();}
-        catch (InterruptedException e) { e.printStackTrace();}
-        SQLiteDatabase db = getWritableDatabase();
-        addBook(book, DOWNLOADED_TABLE_NAME, db);
-    }
     // add a new transaction
 //    public void newTransaction( long date, String category, double amount, String payee ) {
 //        SQLiteDatabase db = this.getWritableDatabase();
@@ -252,61 +232,5 @@ public class Books extends SQLiteOpenHelper {
         cursor.close();
 
         return books;
-    }
-
-    class DownloadBook extends AsyncTask<String, Void, String> {
-        @Override
-        protected String doInBackground(String ... params) {
-            String str_url = params[0];
-            try {
-                // assemble the string and the search request
-                StringBuilder response = new StringBuilder();
-                URL url = new URL(str_url);
-
-                // make the connection
-                HttpURLConnection httpconn = (HttpURLConnection) url.openConnection();
-
-                // did it do ok?
-                if ( httpconn.getResponseCode() == HttpURLConnection.HTTP_OK ) {
-                    BufferedReader input = new BufferedReader(
-                            new InputStreamReader(httpconn.getInputStream()), 8192);
-                    String strLine = null;
-                    while ((strLine = input.readLine()) != null) {
-                        // have more data
-                        response.append(strLine);
-                        response.append("\n");
-                    }
-                    input.close();
-                    return response.toString();
-                }
-            } catch ( IOException e ) {
-                e.printStackTrace();
-                return e.getMessage();
-            }
-            return "";
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            System.out.println("finished downloading");
-        }
-    }
-
-    class WriteBook extends AsyncTask<String,Void,String> {
-        protected String doInBackground(String... data) {
-            try {
-
-                FileOutputStream fis = new FileOutputStream (new File(data[1]));  // 2nd line
-                fis.write(data[0].getBytes());
-
-                fis.close();
-            } catch (Exception e) {
-                e.printStackTrace();
-                return e.getMessage();
-            }
-
-            // all went well
-            return null;
-        }
     }
 }
