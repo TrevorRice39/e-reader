@@ -47,7 +47,7 @@ public class LibraryActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, readBook(bookIds[i]).substring(0, 3000));
+                returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, readBook(bookIds[i]).substring(0, 10000));
                 setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }

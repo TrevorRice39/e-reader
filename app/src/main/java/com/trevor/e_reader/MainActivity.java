@@ -8,7 +8,9 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ScrollView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.lang.reflect.Array;
 import java.util.ArrayList;
@@ -88,11 +90,16 @@ public class MainActivity extends AppCompatActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if(resultCode == Activity.RESULT_OK){
-            TextView book = findViewById(R.id.tv_book_text);
+            ScrollView sv_text = findViewById(R.id.sv_book_text);
+            TextView book = new TextView(this);
             String result = data.getStringExtra(EXTRA_BOOK_ID);
             book.clearComposingText();
             book.setText("");
-            book.setText(result.substring(0, 200));
+            book.setText(result);
+            sv_text.addView(book);
+            String s = book.getText().toString();
+            Toast.makeText(getApplicationContext(), "" + s.length(), Toast.LENGTH_LONG).show();
+            Toast.makeText(getApplicationContext(), "" + book.length(), Toast.LENGTH_LONG).show();
         }
         if (resultCode == Activity.RESULT_CANCELED) {
             //Write your code if there's no result

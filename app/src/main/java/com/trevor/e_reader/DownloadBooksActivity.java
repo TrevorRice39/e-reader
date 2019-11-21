@@ -22,6 +22,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
@@ -68,12 +69,6 @@ public class DownloadBooksActivity extends AppCompatActivity {
         });
     }
 
-    public void downloadBook(String id) {
-
-
-
-
-    }
     // respond to a menu item click
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -115,15 +110,41 @@ public class DownloadBooksActivity extends AppCompatActivity {
                     String res[] = {response.toString(), params[1]};
                     return res;
                 }
-            } catch ( IOException e ) {
-                e.printStackTrace();
-                return null;
+                else {
+                    String res[] = {params[1]};
+                    return res;
+                }
             }
-            return null;
+            catch (MalformedURLException e) {
+                e.printStackTrace();
+                String res[] = {e.toString()};
+                return res;
+            }
+            catch ( IOException e ) {
+                e.printStackTrace();
+                String res[] = {e.toString()};
+                return res;
+            }
+            catch (Exception e) {
+                e.printStackTrace();
+                String res[] = {e.toString()};
+                return res;
+            }
+
         }
 
         @Override
         protected void onPostExecute(String[] result) {
+
+            if (result == null) {
+                Toast.makeText(getApplicationContext(), "Failed to download", Toast.LENGTH_LONG).show();
+            }
+            if (result.length == 1) {
+                Book book = books.getBooks(result[0], books.AVAILABLE_TABLE_NAME).get(0);
+                Toast.makeText(getApplicationContext(), "Failed to download " + book.getTitle(), Toast.LENGTH_LONG).show();
+                return;
+            }
+
             Book book = books.getBooks(result[1], books.AVAILABLE_TABLE_NAME).get(0);
 
             String filename = getApplicationContext().getFilesDir().getPath().toString() + "/" + book.getTitle().replace(" ", "") + ".txt";
