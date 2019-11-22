@@ -15,6 +15,7 @@ public class Book {
         this.title = title;
         this.author = author;
         this.url = url;
+        this.lastRead = new Date(0L);
     }
 
     public Book() { }
@@ -35,9 +36,8 @@ public class Book {
         return this.url;
     }
 
-    public String getDateLastRead() {
-        return "";
-//        return this.lastRead;
+    public Date getDateLastRead() {
+        return this.lastRead;
     }
 
     public String getPosition() {

@@ -111,7 +111,7 @@ public class Books extends SQLiteOpenHelper {
 
         if (TABLE_NAME.equals(DOWNLOADED_TABLE_NAME)) {
             values.put(KEY_ID, book.getId());
-            values.put(KEY_DATE_LAST_READ, book.getDateLastRead());
+            values.put(KEY_DATE_LAST_READ, book.getDateLastRead().toString());
             values.put(KEY_POSITION, book.getPosition());
             values.put(KEY_PATH, book.getPath());
         }
@@ -150,23 +150,31 @@ public class Books extends SQLiteOpenHelper {
 //    }
 //
 //    // edit a transaction
-//    public void updateTransaction( int id, long date, String category, double amount, String payee ) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        String strFilter =  KEY_ID + "=?";
-//        ContentValues values = new ContentValues();
-//        values.put(KEY_DATE, date);
-//        values.put(KEY_CATEGORY, category);
-//        values.put(KEY_AMOUNT, amount);
-//        values.put(KEY_PAYEE, payee);
-//
-//        // record to update
-//        String[] whereArgs = { ""+id };
-//
-//        // do the update
-//        db.update(TABLE_NAME, values, strFilter, whereArgs );
-//
-//        db.close();
-//    }
+    public void updateBook(Book b, boolean downloaded ) {
+        SQLiteDatabase db = this.getWritableDatabase();
+        String strFilter =  KEY_ID + "=?";
+        ContentValues values = new ContentValues();
+
+        values.put(KEY_TITLE, b.getTitle());
+        values.put(KEY_AUTHOR, b.getAuthor());
+        values.put(KEY_URL, b.getUrl());
+
+        // record to update
+        String[] whereArgs = {b.getId()};
+
+        // do the update
+        if (downloaded){
+            values.put(KEY_POSITION, b.getPosition());
+            values.put(KEY_PATH, b.getPath());
+            values.put(KEY_DATE_LAST_READ, b.getDateLastRead().toString());
+           db.update(DOWNLOADED_TABLE_NAME, values, strFilter, whereArgs);
+        }
+        else {
+            db.update(AVAILABLE_TABLE_NAME, values, strFilter, whereArgs);
+        }
+
+        db.close();
+    }
 
 //    // delete a transaction
 //    public void deleteTransaction( int id ) {

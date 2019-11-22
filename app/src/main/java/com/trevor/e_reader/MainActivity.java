@@ -106,8 +106,6 @@ public class MainActivity extends AppCompatActivity {
         Toast.makeText(this, "resumed", Toast.LENGTH_SHORT).show();
         ScrollView text = findViewById(R.id.sv_book_text);
 
-
-
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
 
         this.font_size = Float.parseFloat(preferences.getString(font_key, "12.0"));
@@ -193,6 +191,7 @@ public class MainActivity extends AppCompatActivity {
         if (resultCode == Activity.RESULT_OK) {
             currentBook = readBook(data.getStringExtra(EXTRA_BOOK_ID));
             numPages = currentBook.length()/1000;
+
             updateBookText();
         }
         if (resultCode == Activity.RESULT_CANCELED) {
@@ -201,8 +200,8 @@ public class MainActivity extends AppCompatActivity {
     }
     public String readBook(String id) {
         Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
-        System.out.println(book.getTitle());
-        System.out.println(book.getPath());
+        book.setDate(new java.sql.Date(System.currentTimeMillis()));
+        books.updateBook(book, true);
         String path = book.getPath();
         File file = new File(path);
         StringBuilder bookText = new StringBuilder();
