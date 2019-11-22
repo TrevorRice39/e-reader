@@ -24,12 +24,14 @@ import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.lang.reflect.Array;
+import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     public Books books = new Books(this);
     int position = 0;
     int pageSize = 1000;
+    int numPages = 0;
     String currentBook = "Go select a book from the library please!";
     float font_size;
     @Override
@@ -41,7 +43,7 @@ public class MainActivity extends AppCompatActivity {
 
         Button back = findViewById(R.id.btn_back);
         Button next = findViewById(R.id.btn_next);
-
+        Button go_to = findViewById(R.id.btn_page_search);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -61,8 +63,31 @@ public class MainActivity extends AppCompatActivity {
                 updateBookText();
             }
         });
+
+        go_to.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                TextView pageNum = findViewById(R.id.et_page);
+
+
+                int newPage = Integer.parseInt(pageNum.getText().toString());
+
+                if (newPage <= numPages && newPage >= 0) {
+                    position = newPage * 1000;
+                }
+                else {
+                    Toast.makeText(getApplicationContext(), "Invalid page number", Toast.LENGTH_LONG).show();
+                }
+                updateBookText();
+
+            }
+        });
     }
 
+    private void updatePageNum() {
+        TextView pageNum = findViewById(R.id.et_page);
+        pageNum.setText("" + position/1000);
+    }
     // system is ready to create the menu
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -88,22 +113,6 @@ public class MainActivity extends AppCompatActivity {
         this.font_size = Float.parseFloat(preferences.getString(font_key, "12.0"));
         Toast.makeText(this, "" + this.font_size, Toast.LENGTH_LONG).show();
         updateBookText();
-        // get the child price from the preferences
-//        childPrice = Double.parseDouble(preferences.getString(child_price_key, "15.95"));
-//        // get the adult price from the preferences
-//        adultPrice = Double.parseDouble(preferences.getString(adult_price_key, "29.95"));
-//        // get the tax rate from the preferences
-//        taxRate = Double.parseDouble(preferences.getString(tax_rate_key, "0.06"));
-//
-//        // adjust the textviews
-//        TextView tv_child_price = findViewById(R.id.tv_children);
-//        tv_child_price.setText("Children ($" + String.format("%.2f", childPrice) + ")");
-//
-//        TextView tv_adult_price = findViewById(R.id.tv_adult);
-//        tv_adult_price.setText("Adults ($" + String.format("%.2f", adultPrice) + ")");
-//
-//        // update the cost with the new values
-//        updateCost();
 
     }
 
@@ -163,23 +172,27 @@ public class MainActivity extends AppCompatActivity {
     private void updateBookText() {
         ScrollView sv_text = findViewById(R.id.sv_book_text);
         sv_text.removeAllViews();
+
         TextView book = new TextView(this);
         book.setTextSize(font_size);
         try {
             book.setText(currentBook.substring(position, position + pageSize));
-            EditText pageNum = findViewById(R.id.et_page);
+            // EditText pageNum = findViewById(R.id.et_page);
         }
         catch (StringIndexOutOfBoundsException e) {
 
         }
 
         sv_text.addView(book);
+        sv_text.pageScroll(View.FOCUS_UP);
+        updatePageNum();
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             currentBook = readBook(data.getStringExtra(EXTRA_BOOK_ID));
+            numPages = currentBook.length()/1000;
             updateBookText();
         }
         if (resultCode == Activity.RESULT_CANCELED) {
