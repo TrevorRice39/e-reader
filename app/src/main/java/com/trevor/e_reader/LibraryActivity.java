@@ -47,7 +47,7 @@ public class LibraryActivity extends AppCompatActivity {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
                 Intent returnIntent = new Intent();
-                returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, readBook(bookIds[i]).substring(0, 10000));
+                returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, bookIds[i]);
                 setResult(Activity.RESULT_OK,returnIntent);
                 finish();
             }
@@ -69,7 +69,7 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
-    private String readBook(String id) {
+    public String readBook(String id) {
         Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
         System.out.println(book.getTitle());
         System.out.println(book.getPath());
