@@ -19,7 +19,8 @@
     <PreferenceCategory android:title="Text Settings">
 
         <EditTextPreference
-            android:defaultValue="Default value"
+            android:defaultValue="20.0"
+            android:inputType="numberDecimal"
             android:key="pref_text_size"
             android:selectAllOnFocus="true"
             android:singleLine="true"

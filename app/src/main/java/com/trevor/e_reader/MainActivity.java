@@ -1,13 +1,16 @@
 package com.trevor.e_reader;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.preference.PreferenceManager;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SurfaceView;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -28,13 +31,13 @@ public class MainActivity extends AppCompatActivity {
     int position = 0;
     int pageSize = 1000;
     String currentBook = "Go select a book from the library please!";
-
+    float font_size;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.deleteDatabase("Library");
+        //this.deleteDatabase("Library");
 
         Button back = findViewById(R.id.btn_back);
         Button next = findViewById(R.id.btn_next);
@@ -66,6 +69,42 @@ public class MainActivity extends AppCompatActivity {
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.main_menu, menu);
         return true;
+    }
+
+
+    // keys for our preferences
+    static String font_key = "pref_text_size";
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Toast.makeText(this, "resumed", Toast.LENGTH_SHORT).show();
+        ScrollView text = findViewById(R.id.sv_book_text);
+
+
+
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+
+        this.font_size = Float.parseFloat(preferences.getString(font_key, "12.0"));
+        Toast.makeText(this, "" + this.font_size, Toast.LENGTH_LONG).show();
+        updateBookText();
+        // get the child price from the preferences
+//        childPrice = Double.parseDouble(preferences.getString(child_price_key, "15.95"));
+//        // get the adult price from the preferences
+//        adultPrice = Double.parseDouble(preferences.getString(adult_price_key, "29.95"));
+//        // get the tax rate from the preferences
+//        taxRate = Double.parseDouble(preferences.getString(tax_rate_key, "0.06"));
+//
+//        // adjust the textviews
+//        TextView tv_child_price = findViewById(R.id.tv_children);
+//        tv_child_price.setText("Children ($" + String.format("%.2f", childPrice) + ")");
+//
+//        TextView tv_adult_price = findViewById(R.id.tv_adult);
+//        tv_adult_price.setText("Adults ($" + String.format("%.2f", adultPrice) + ")");
+//
+//        // update the cost with the new values
+//        updateCost();
+
     }
 
     public static String EXTRA_BOOK_ID = "books";
@@ -125,6 +164,7 @@ public class MainActivity extends AppCompatActivity {
         ScrollView sv_text = findViewById(R.id.sv_book_text);
         sv_text.removeAllViews();
         TextView book = new TextView(this);
+        book.setTextSize(font_size);
         try {
             book.setText(currentBook.substring(position, position + pageSize));
             EditText pageNum = findViewById(R.id.et_page);
