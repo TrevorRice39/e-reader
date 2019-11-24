@@ -191,6 +191,44 @@ public class Books extends SQLiteOpenHelper {
 //    }
 
     // get a list of transactions matching a filter
+    public Book getLastReadBook() {
+        Book book = new Book();
+        SQLiteDatabase db = getReadableDatabase();
+        Cursor cursor;
+
+        // sql statement to select the most recent date
+        cursor = db.rawQuery("Select " + KEY_ID + " From " + DOWNLOADED_TABLE_NAME
+                            + " GROUP BY " + KEY_ID
+                            + " ORDER BY " + KEY_DATE_LAST_READ + " DESC"
+                            + " LIMIT 1", null);
+
+
+        // anything to display?
+        if(cursor.moveToFirst()){
+            do {
+                String id = cursor.getString(cursor.getColumnIndex(KEY_ID));
+//                String title = cursor.getString(cursor.getColumnIndex(KEY_TITLE));
+//                String author = cursor.getString(cursor.getColumnIndex(KEY_AUTHOR));
+//                String url = cursor.getString(cursor.getColumnIndex(KEY_URL));
+//                String position = cursor.getString(cursor.getColumnIndex(KEY_POSITION));
+                String path = "";
+                Date date = new Date();
+
+                book.setId(id);
+//                book.setTitle(title);
+//                book.setAuthor(author);
+//                book.setUrl(url);
+//                book.setDate(date);
+//                book.setPosition(position);
+                book.setPath(path);
+            } while (cursor.moveToNext());
+        }
+        else {
+            book = null;
+        }
+        cursor.close();
+        return book;
+    }
     public ArrayList<Book> getBooks(String filter, String TABLE_NAME ) {
         ArrayList<Book> books = new ArrayList<>();
         SQLiteDatabase db = getReadableDatabase();
@@ -219,10 +257,10 @@ public class Books extends SQLiteOpenHelper {
                 String url = cursor.getString(cursor.getColumnIndex(KEY_URL));
                 String path = "";
                 Date date = new Date();
-                String position = "";
+                int position = 0;
                 if (TABLE_NAME.equals("downloaded")) {
                     //date = cursor.getString(cursor.getColumnIndex(KEY_DATE_LAST_READ));
-                    position = cursor.getString(cursor.getColumnIndex(KEY_POSITION));
+                    position = Integer.parseInt(cursor.getString(cursor.getColumnIndex(KEY_POSITION)));
                     path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
                 }
                 Book book = new Book();

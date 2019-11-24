@@ -7,7 +7,7 @@ public class Book {
     private String title;
     private String author;
     private String url;
-    private String position;
+    private int position;
     private Date lastRead;
     private String path;
 
@@ -40,7 +40,7 @@ public class Book {
         return this.lastRead;
     }
 
-    public String getPosition() {
+    public int getPosition() {
         return this.position;
     }
 
@@ -67,7 +67,8 @@ public class Book {
     public  void setDate(Date date) {
         this.lastRead = date;
     }
-    public void setPosition(String position) {
+
+    public void setPosition(int position) {
         this.position = position;
     }
 

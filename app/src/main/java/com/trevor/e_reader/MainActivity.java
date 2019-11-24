@@ -18,6 +18,8 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.facebook.stetho.Stetho;
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -38,8 +40,15 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         //this.deleteDatabase("Library");
+        Stetho.initializeWithDefaults(this);
+        Book book = books.getLastReadBook();
+        if (book != null) {
+            Toast.makeText(this, "id = " + book.getId(), Toast.LENGTH_LONG).show();
+            currentBook = readBook(book.getId());
+        }
+        updateBookText();
+
 
         Button back = findViewById(R.id.btn_back);
         Button next = findViewById(R.id.btn_next);
@@ -200,9 +209,11 @@ public class MainActivity extends AppCompatActivity {
     }
     public String readBook(String id) {
         Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
-        book.setDate(new java.sql.Date(System.currentTimeMillis()));
+        book.setDate(new java.sql.Timestamp(System.currentTimeMillis()));
+        //Toast.makeText(this, "time = " + new java.sql.Date(System.currentTimeMillis()).toString(), Toast.LENGTH_LONG).show();
         books.updateBook(book, true);
         String path = book.getPath();
+        position = book.getPosition();
         File file = new File(path);
         StringBuilder bookText = new StringBuilder();
         BufferedReader br;
