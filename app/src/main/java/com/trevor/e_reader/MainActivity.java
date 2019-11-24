@@ -31,71 +31,115 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
     public Books books = new Books(this);
+
+    // current position in the book
     int position = 0;
-    int pageSize = 1000;
+
+    // number of characters in each page
+    int pageSize;
+
+    // number of total pages in the book, initialized to 0
     int numPages = 0;
-    String currentBook = "Go select a book from the library please!";
+
+    // current book text, initialized to empty string
+    String currentBook = "";
+
+    // id of the current book, initialized to empty string
+    String currentBookID = "";
+
+    // user decided font size
     float font_size;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        //this.deleteDatabase("Library");
+
+        // used to debug the database
         Stetho.initializeWithDefaults(this);
+
+        // getting the last read book
         Book book = books.getLastReadBook();
+
+        // if there was a book in the db
         if (book != null) {
-            Toast.makeText(this, "id = " + book.getId(), Toast.LENGTH_LONG).show();
+            // get the text
             currentBook = readBook(book.getId());
+            // update the number of pages
+            numPages = currentBook.length()/pageSize;
+            // update the book (date last read has changed to now)
+            updateBook(currentBookID);
         }
+        // update the text on the screen
         updateBookText();
 
-
+        // buttons to control the pages
+        // back one page button
         Button back = findViewById(R.id.btn_back);
+        // next page button
         Button next = findViewById(R.id.btn_next);
+        // go to page specified by page number
         Button go_to = findViewById(R.id.btn_page_search);
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // if the position is greater than the first page
                 if (position >= pageSize) {
+                    // go back a page
                     position -= pageSize;
                 }
+                // update the screen
                 updateBookText();
+                // update the page the user is on in the db
+                updateBook(currentBookID);
             }
         });
 
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                // if we're not on the last page
                 if (position <= currentBook.length()-1001) {
+                    // go to the next page
                     position += pageSize;
                 }
+                // update the screen
                 updateBookText();
+                // update the page the user is on in the db
+                updateBook(currentBookID);
             }
         });
 
         go_to.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                // page number the user enters
                 TextView pageNum = findViewById(R.id.et_page);
 
-
-                int newPage = Integer.parseInt(pageNum.getText().toString());
-
-                if (newPage <= numPages && newPage >= 0) {
-                    position = newPage * 1000;
+                int newPage;
+                try {
+                    // attempt to parse the page number
+                    newPage = Integer.parseInt(pageNum.getText().toString());
+                    // update the position
+                    position = newPage * pageSize;
                 }
-                else {
+                catch (Exception e) {
+                    // invalid page number
                     Toast.makeText(getApplicationContext(), "Invalid page number", Toast.LENGTH_LONG).show();
                 }
+                // update the book on the screen
                 updateBookText();
 
             }
         });
     }
 
+    // function to update the page number
     private void updatePageNum() {
+        // find the page number edit text
         TextView pageNum = findViewById(R.id.et_page);
-        pageNum.setText("" + position/1000);
+        // set it to the position/pagesize
+        pageNum.setText("" + position/pageSize);
     }
     // system is ready to create the menu
     @Override
@@ -112,17 +156,16 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onResume() {
         super.onResume();
-        Toast.makeText(this, "resumed", Toast.LENGTH_SHORT).show();
-        ScrollView text = findViewById(R.id.sv_book_text);
 
+        // get the font size preference
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-
         this.font_size = Float.parseFloat(preferences.getString(font_key, "12.0"));
-        Toast.makeText(this, "" + this.font_size, Toast.LENGTH_LONG).show();
+
         updateBookText();
 
     }
 
+    // IDs to pass data to other activity
     public static String EXTRA_BOOK_ID = "books";
     public static String EXTRA_BOOK_IDS_ID = "ids";
 
@@ -141,8 +184,9 @@ public class MainActivity extends AppCompatActivity {
                 listOfBooks = books.getBooks("", Books.DOWNLOADED_TABLE_NAME);
                 bookArray = new String[listOfBooks.size()];
                 bookIds = new String[listOfBooks.size()];
+                // pass in the book ids and the title and author
                 for (int i = 0; i < bookArray.length; i++) {
-                    bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor() + " " + listOfBooks.get(i).getId();
+                    bookArray[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
                     bookIds[i] = listOfBooks.get(i).getId();
                 }
                 intent.putExtra(EXTRA_BOOK_ID, bookArray);
@@ -176,22 +220,29 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // function to update the current book
     private void updateBookText() {
+        // get the scroll view
         ScrollView sv_text = findViewById(R.id.sv_book_text);
+        // remove all children views
         sv_text.removeAllViews();
 
+        // make a textview
         TextView book = new TextView(this);
+        // set the font size
         book.setTextSize(font_size);
         try {
+            // set the text to the current book at the current page
             book.setText(currentBook.substring(position, position + pageSize));
-            // EditText pageNum = findViewById(R.id.et_page);
-        }
-        catch (StringIndexOutOfBoundsException e) {
 
         }
+        catch (StringIndexOutOfBoundsException e) { }
 
+        // add the view to the scroll view
         sv_text.addView(book);
+        // scroll to the top
         sv_text.pageScroll(View.FOCUS_UP);
+        // update the page number edit text
         updatePageNum();
     }
     @Override
@@ -199,7 +250,7 @@ public class MainActivity extends AppCompatActivity {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
             currentBook = readBook(data.getStringExtra(EXTRA_BOOK_ID));
-            numPages = currentBook.length()/1000;
+            numPages = currentBook.length()/pageSize;
 
             updateBookText();
         }
@@ -207,20 +258,38 @@ public class MainActivity extends AppCompatActivity {
             //Write your code if there's no result
         }
     }
-    public String readBook(String id) {
+
+    public void updateBook(String id) {
         Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
         book.setDate(new java.sql.Timestamp(System.currentTimeMillis()));
+        book.setPosition(position);
         //Toast.makeText(this, "time = " + new java.sql.Date(System.currentTimeMillis()).toString(), Toast.LENGTH_LONG).show();
         books.updateBook(book, true);
+    }
+
+    // read a book by id
+    public String readBook(String id) {
+        // set the current book id to id
+        currentBookID = id;
+        // find the book
+        Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
+        // update the book to the current time
+        updateBook(book.getId());
+        // get the path
         String path = book.getPath();
+        // get the position of the book
         position = book.getPosition();
+
+        // read the book
         File file = new File(path);
+        // book text
         StringBuilder bookText = new StringBuilder();
         BufferedReader br;
         try {
             br = new BufferedReader(new FileReader(file));
             String line;
             while ((line = br.readLine()) != null) {
+                // add line to the book text
                 bookText.append(line);
                 bookText.append('\n');
             }
