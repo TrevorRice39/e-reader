@@ -36,7 +36,7 @@ public class MainActivity extends AppCompatActivity {
     int position = 0;
 
     // number of characters in each page
-    int pageSize;
+    int pageSize = 1000;
 
     // number of total pages in the book, initialized to 0
     int numPages = 0;
@@ -279,6 +279,10 @@ public class MainActivity extends AppCompatActivity {
         String path = book.getPath();
         // get the position of the book
         position = book.getPosition();
+
+        // update the title
+        TextView tv_title = findViewById(R.id.tv_book_title);
+        tv_title.setText(book.getTitle());
 
         // read the book
         File file = new File(path);

@@ -8,11 +8,14 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.TypedValue;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import java.io.BufferedReader;
@@ -20,6 +23,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 
 public class LibraryActivity extends AppCompatActivity {
     Books books = new Books(this);
@@ -33,23 +37,47 @@ public class LibraryActivity extends AppCompatActivity {
         setTitle("Library");
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
 
-        Intent intent = this.getIntent();
-        bookTitles = intent.getStringArrayExtra(MainActivity.EXTRA_BOOK_ID);
-        bookIds = intent.getStringArrayExtra(MainActivity.EXTRA_BOOK_IDS_ID);
         // creating the adapter for the list of downloaded books
+        getBookInfo();
         ArrayAdapter adapter = new ArrayAdapter<String>(this,
                 R.layout.activity_book_list, bookTitles);
 
         ListView listView = (ListView) findViewById(R.id.list_books);
+
         listView.setAdapter(adapter);
         // if they select a book
         listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> adapterView, View view, final int i, long l) {
-                Intent returnIntent = new Intent();
-                returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, bookIds[i]);
-                setResult(Activity.RESULT_OK,returnIntent);
-                finish();
+                new AlertDialog.Builder(LibraryActivity.this)
+                        .setTitle("Library")
+                        .setMessage("Would you like to read or delete " + bookTitles[i] + "?")
+                        .setIcon(android.R.drawable.ic_dialog_alert)
+                        .setPositiveButton("Read", new DialogInterface.OnClickListener() {
+
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                Intent returnIntent = new Intent();
+                                returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, bookIds[i]);
+                                setResult(Activity.RESULT_OK,returnIntent);
+                                finish();
+                            }})
+                        .setNegativeButton("Delete", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog, int which) {
+                                new AlertDialog.Builder(LibraryActivity.this)
+                                        .setTitle("Delete")
+                                        .setMessage("Are you sure you would like to delete " + bookTitles[i] + "?")
+                                        .setIcon(android.R.drawable.ic_dialog_alert)
+                                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                            public void onClick(DialogInterface dialog, int whichButton) {
+                                                books.deleteBook(bookIds[i]);
+                                                finish();
+                                                startActivity(getIntent());
+                                                getBookInfo();
+                                            }})
+                                        .setNegativeButton(android.R.string.no, null).show();
+                            }
+                        }).show();
             }
         });
     }
@@ -69,6 +97,16 @@ public class LibraryActivity extends AppCompatActivity {
         }
     }
 
+    public void getBookInfo() {
+        ArrayList<Book> listOfBooks = books.getBooks("", Books.DOWNLOADED_TABLE_NAME);
+        bookTitles = new String[listOfBooks.size()];
+        bookIds = new String[listOfBooks.size()];
+        // pass in the book ids and the title and author
+        for (int i = 0; i < bookTitles.length; i++) {
+            bookTitles[i] = listOfBooks.get(i).getTitle() + " - " + listOfBooks.get(i).getAuthor();
+            bookIds[i] = listOfBooks.get(i).getId();
+        }
+    }
     public String readBook(String id) {
         Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
         System.out.println(book.getTitle());
