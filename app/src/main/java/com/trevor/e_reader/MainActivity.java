@@ -162,7 +162,6 @@ public class MainActivity extends AppCompatActivity {
         this.font_size = Float.parseFloat(preferences.getString(font_key, "12.0"));
 
         updateBookText();
-
     }
 
     // IDs to pass data to other activity

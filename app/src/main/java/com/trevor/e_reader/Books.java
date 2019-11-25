@@ -177,6 +177,8 @@ public class Books extends SQLiteOpenHelper {
     }
 
     public void deleteBook(String id) {
+        deleteBookFile(id);
+
         SQLiteDatabase db = this.getWritableDatabase();
         String filter = KEY_ID +"=?";
 
@@ -184,6 +186,17 @@ public class Books extends SQLiteOpenHelper {
 
         db.delete(DOWNLOADED_TABLE_NAME, filter, whereArgs);
         db.close();
+
+    }
+
+    public boolean deleteBookFile(String id) {
+        Book book = this.getBooks(id,DOWNLOADED_TABLE_NAME).get(0);
+
+        String path = book.getPath();
+
+        File bookFile = new File(path);
+
+        return bookFile.delete();
     }
 //    // delete a transaction
 //    public void deleteTransaction( int id ) {

@@ -107,7 +107,7 @@ public class LibraryActivity extends AppCompatActivity {
             bookIds[i] = listOfBooks.get(i).getId();
         }
     }
-    public String readBook(String id) {
+    public String deleteBook(String id) {
         Book book = books.getBooks(id, Books.DOWNLOADED_TABLE_NAME).get(0);
         System.out.println(book.getTitle());
         System.out.println(book.getPath());
