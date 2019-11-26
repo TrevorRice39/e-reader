@@ -30,6 +30,7 @@ public class LibraryActivity extends AppCompatActivity {
     // example book titles
     String[] bookTitles;
     String[] bookIds;
+    static final int RESULT_DELETE_CODE = 134718;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -71,6 +72,9 @@ public class LibraryActivity extends AppCompatActivity {
                                         .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
                                                 books.deleteBook(bookIds[i]);
+                                                Intent returnIntent = new Intent();
+
+                                                setResult(RESULT_DELETE_CODE,returnIntent);
                                                 finish();
                                                 startActivity(getIntent());
                                                 getBookInfo();

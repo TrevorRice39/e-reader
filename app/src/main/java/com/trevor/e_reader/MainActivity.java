@@ -253,8 +253,20 @@ public class MainActivity extends AppCompatActivity {
 
             updateBookText();
         }
-        if (resultCode == Activity.RESULT_CANCELED) {
-            //Write your code if there's no result
+        if (resultCode == LibraryActivity.RESULT_DELETE_CODE) {
+            currentBook = "";
+            numPages = 0;
+
+            // update the title
+            TextView tv_title = findViewById(R.id.tv_book_title);
+            tv_title.setText("Title: ");
+
+            // update the author
+            TextView tv_author = findViewById(R.id.tv_author);
+            tv_author.setText("Author: ");
+
+
+            updateBookText();
         }
     }
 
@@ -281,7 +293,11 @@ public class MainActivity extends AppCompatActivity {
 
         // update the title
         TextView tv_title = findViewById(R.id.tv_book_title);
-        tv_title.setText(book.getTitle());
+        tv_title.setText("Title: " + book.getTitle());
+
+        // update the author
+        TextView tv_author = findViewById(R.id.tv_author);
+        tv_author.setText("Author: " + book.getAuthor());
 
         // read the book
         File file = new File(path);
