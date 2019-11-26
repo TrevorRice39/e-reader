@@ -83,53 +83,57 @@ public class MainActivity extends AppCompatActivity {
         back.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // if the position is greater than the first page
-                if (position >= pageSize) {
-                    // go back a page
-                    position -= pageSize;
+                if (currentBookID.length() != 0) {
+                    // if the position is greater than the first page
+                    if (position >= pageSize) {
+                        // go back a page
+                        position -= pageSize;
+                    }
+                    // update the screen
+                    updateBookText();
+                    // update the page the user is on in the db
+                    updateBook(currentBookID);
                 }
-                // update the screen
-                updateBookText();
-                // update the page the user is on in the db
-                updateBook(currentBookID);
             }
         });
 
         next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                // if we're not on the last page
-                if (position <= currentBook.length()-1001) {
-                    // go to the next page
-                    position += pageSize;
+                if (currentBookID.length() != 0) {
+                    // if we're not on the last page
+                    if (position <= currentBook.length() - 1001) {
+                        // go to the next page
+                        position += pageSize;
+                    }
+                    // update the screen
+                    updateBookText();
+                    // update the page the user is on in the db
+                    updateBook(currentBookID);
                 }
-                // update the screen
-                updateBookText();
-                // update the page the user is on in the db
-                updateBook(currentBookID);
             }
         });
 
         go_to.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // page number the user enters
-                TextView pageNum = findViewById(R.id.et_page);
+                if (currentBookID.length() != 0) {
+                    // page number the user enters
+                    TextView pageNum = findViewById(R.id.et_page);
 
-                int newPage;
-                try {
-                    // attempt to parse the page number
-                    newPage = Integer.parseInt(pageNum.getText().toString());
-                    // update the position
-                    position = newPage * pageSize;
+                    int newPage;
+                    try {
+                        // attempt to parse the page number
+                        newPage = Integer.parseInt(pageNum.getText().toString());
+                        // update the position
+                        position = newPage * pageSize;
+                    } catch (Exception e) {
+                        // invalid page number
+                        Toast.makeText(getApplicationContext(), "Invalid page number", Toast.LENGTH_LONG).show();
+                    }
+                    // update the book on the screen
+                    updateBookText();
                 }
-                catch (Exception e) {
-                    // invalid page number
-                    Toast.makeText(getApplicationContext(), "Invalid page number", Toast.LENGTH_LONG).show();
-                }
-                // update the book on the screen
-                updateBookText();
-
             }
         });
     }

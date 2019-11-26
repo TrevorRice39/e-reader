@@ -229,19 +229,10 @@ public class Books extends SQLiteOpenHelper {
         if(cursor.moveToFirst()){
             do {
                 String id = cursor.getString(cursor.getColumnIndex(KEY_ID));
-//                String title = cursor.getString(cursor.getColumnIndex(KEY_TITLE));
-//                String author = cursor.getString(cursor.getColumnIndex(KEY_AUTHOR));
-//                String url = cursor.getString(cursor.getColumnIndex(KEY_URL));
-//                String position = cursor.getString(cursor.getColumnIndex(KEY_POSITION));
                 String path = "";
                 Date date = new Date();
 
                 book.setId(id);
-//                book.setTitle(title);
-//                book.setAuthor(author);
-//                book.setUrl(url);
-//                book.setDate(date);
-//                book.setPosition(position);
                 book.setPath(path);
             } while (cursor.moveToNext());
         }
@@ -297,6 +288,7 @@ public class Books extends SQLiteOpenHelper {
             } while (cursor.moveToNext());
 
         }
+
         cursor.close();
 
         return books;
