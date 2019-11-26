@@ -133,22 +133,7 @@ public class Books extends SQLiteOpenHelper {
         db.execSQL("DROP TABLE IF EXISTS "+ AVAILABLE_TABLE_NAME);
         onCreate(db);
     }
-
-    // download a book
-
-    // add a new transaction
-//    public void newTransaction( long date, String category, double amount, String payee ) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        ContentValues values = new ContentValues();
-//        values.put(KEY_DATE, date);
-//        values.put(KEY_CATEGORY, category);
-//        values.put(KEY_AMOUNT, amount);
-//        values.put(KEY_PAYEE, payee);
-//        db.insert(TABLE_NAME, null, values);
-//
-//        db.close();
-//    }
-//
+    
 //    // edit a transaction
     public void updateBook(Book b, boolean downloaded ) {
         SQLiteDatabase db = this.getWritableDatabase();
@@ -198,19 +183,6 @@ public class Books extends SQLiteOpenHelper {
 
         return bookFile.delete();
     }
-//    // delete a transaction
-//    public void deleteTransaction( int id ) {
-//        SQLiteDatabase db = this.getWritableDatabase();
-//        String strFilter =  KEY_ID + "=?";
-//
-//        // record to delete
-//        String[] whereArgs = { ""+id };
-//
-//        // delete the record
-//        db.delete(TABLE_NAME, strFilter, whereArgs );
-//
-//        db.close();
-//    }
 
     // get a list of transactions matching a filter
     public Book getLastReadBook() {
@@ -286,9 +258,7 @@ public class Books extends SQLiteOpenHelper {
                 book.setPath(path);
                 books.add(book);
             } while (cursor.moveToNext());
-
         }
-
         cursor.close();
 
         return books;

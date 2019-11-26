@@ -57,6 +57,7 @@ public class LibraryActivity extends AppCompatActivity {
                         .setPositiveButton("Read", new DialogInterface.OnClickListener() {
 
                             public void onClick(DialogInterface dialog, int whichButton) {
+                                Toast.makeText(getApplicationContext(), bookTitles[i] + " selected.", Toast.LENGTH_LONG).show();
                                 Intent returnIntent = new Intent();
                                 returnIntent.putExtra(MainActivity.EXTRA_BOOK_ID, bookIds[i]);
                                 setResult(Activity.RESULT_OK,returnIntent);
@@ -69,7 +70,7 @@ public class LibraryActivity extends AppCompatActivity {
                                         .setTitle("Delete")
                                         .setMessage("Are you sure you would like to delete " + bookTitles[i] + "?")
                                         .setIcon(android.R.drawable.ic_dialog_alert)
-                                        .setPositiveButton(android.R.string.yes, new DialogInterface.OnClickListener() {
+                                        .setPositiveButton("Delete", new DialogInterface.OnClickListener() {
                                             public void onClick(DialogInterface dialog, int whichButton) {
                                                 books.deleteBook(bookIds[i]);
                                                 Intent returnIntent = new Intent();
@@ -77,9 +78,10 @@ public class LibraryActivity extends AppCompatActivity {
                                                 setResult(RESULT_DELETE_CODE,returnIntent);
                                                 finish();
                                                 startActivity(getIntent());
+                                                Toast.makeText(getApplicationContext(), bookTitles[i] + " deleted.", Toast.LENGTH_LONG).show();
                                                 getBookInfo();
                                             }})
-                                        .setNegativeButton(android.R.string.no, null).show();
+                                        .setNegativeButton("Cancel", null).show();
                             }
                         }).show();
             }
