@@ -1,0 +1,2 @@
+The Time Machine,H.G. Wells,http://styere.xyz/class/TimeMachine.txt
+A Christmas Carol,Charles Dickens,http://styere.xyz/class/ChristmasCarol.txt

@@ -26,7 +26,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 
 public class LibraryActivity extends AppCompatActivity {
-    Books books = new Books(this);
+    Books books = new Books(this, MainActivity.DATABASE_NAME, R.raw.books);
     // example book titles
     String[] bookTitles;
     String[] bookIds;

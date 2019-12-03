@@ -28,9 +28,10 @@ import java.util.ArrayList;
 import java.util.concurrent.ExecutionException;
 
 public class DownloadBooksActivity extends AppCompatActivity {
-    public Books books = new Books(this);
+    public Books books = new Books(this, MainActivity.DATABASE_NAME, R.raw.books);
     String[] bookTitles;
     String[] bookIds;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

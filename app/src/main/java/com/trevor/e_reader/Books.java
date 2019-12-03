@@ -31,7 +31,6 @@ import com.opencsv.CSVReader;
 
 public class Books extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
-    private static final String DATABASE_NAME = "Library";
 
     public static final String AVAILABLE_TABLE_NAME = "available"; // books that can be downloaded
     public static final String KEY_ID = "_id";
@@ -47,11 +46,14 @@ public class Books extends SQLiteOpenHelper {
     public static final String KEY_PATH = "file_path";
     public static final String KEY_DATE_LAST_READ = "date_read";
 
+    // id of books to read from in raw
+    public int listOfBooksID;
+
     Context context;
     // constructor
-    public Books(Context c){
+    public Books(Context c, String DATABASE_NAME, int listOfBooksID){
         super(c,DATABASE_NAME, null, DATABASE_VERSION);
-
+        this.listOfBooksID = listOfBooksID;
         context = c;
     }
 
@@ -88,7 +90,7 @@ public class Books extends SQLiteOpenHelper {
     private ArrayList<Book> readAvailableBooks() {
         ArrayList<Book> books = new ArrayList<>();
         try {
-            InputStream is = context.getResources().openRawResource(R.raw.books);
+            InputStream is = context.getResources().openRawResource(this.listOfBooksID);
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
             String line = "";

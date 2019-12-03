@@ -30,7 +30,8 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public Books books = new Books(this);
+    public static final String DATABASE_NAME = "Library";
+    public Books books = new Books(this, DATABASE_NAME, R.raw.books);
 
     // current position in the book
     int position = 0;
