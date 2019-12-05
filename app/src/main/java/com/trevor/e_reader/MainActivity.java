@@ -67,7 +67,6 @@ public class MainActivity extends AppCompatActivity {
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
             String line = reader.readLine();
-            System.out.println(line);
             this.DATABASE_NAME = line;
         } catch (IOException e) {
             e.printStackTrace();
