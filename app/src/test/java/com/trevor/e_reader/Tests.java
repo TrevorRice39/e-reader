@@ -16,5 +16,9 @@ public class Tests {
         assertEquals(4, 2 + 2);
     }
 
+    @Test
+    public void somethin() {
+        new DownloadBooksActivity.DownloadBook()
+    }
 
 }

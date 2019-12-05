@@ -25,13 +25,16 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.lang.reflect.Array;
+import java.nio.charset.Charset;
 import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public static final String DATABASE_NAME = "Library";
-    public Books books = new Books(this, DATABASE_NAME, R.raw.books);
+    public static String DATABASE_NAME = "Library";
+    public Books books;
 
     // current position in the book
     int position = 0;
@@ -51,11 +54,27 @@ public class MainActivity extends AppCompatActivity {
     // user decided font size
     float font_size;
 
+    public void setDatabaseName(String databaseName) {
+        this.DATABASE_NAME = databaseName;
+        onCreate(null);
+    }
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        try {
+            InputStream is = this.getResources().openRawResource(R.raw.dbname);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
+            String line = reader.readLine();
+            System.out.println(line);
+            this.DATABASE_NAME = line;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
+        this.books = new Books(this, DATABASE_NAME, R.raw.books);
         // used to debug the database
         Stetho.initializeWithDefaults(this);
 
