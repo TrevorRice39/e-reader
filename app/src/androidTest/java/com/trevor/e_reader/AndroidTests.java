@@ -81,12 +81,15 @@ public class AndroidTests {
     public void canSelectBook() {
         Books books = new Books(mActivityRule.getActivity(), "test", R.raw.test_books);
 
-
         openActionBarOverflowOrOptionsMenu(getApplicationContext());
 
         onView(withText("View Library")).perform(click());
         onView(withText("The Time Machine - H.G. Wells")).perform(click());
         onView(withText("READ")).perform(click());
+
+        onView(withId(R.id.et_page)).perform(clearText());
+        onView(withId(R.id.et_page)).perform(typeText("0"));
+        onView(withId(R.id.btn_page_search)).perform(click());
 
         String actualBookText = "The Project Gutenberg EBook of The Time Machine, by H. G. Wells";
         TextView book = mActivityRule.getActivity().findViewById(R.id.tv_book);
@@ -98,5 +101,25 @@ public class AndroidTests {
         assertEquals(bookText, actualBookText);
 
         mActivityRule.finishActivity();
+    }
+
+    @Test
+    public void savesPage() {
+        Books books = new Books(mActivityRule.getActivity(), "test", R.raw.test_books);
+
+        openActionBarOverflowOrOptionsMenu(getApplicationContext());
+
+        onView(withText("View Library")).perform(click());
+        onView(withText("The Time Machine - H.G. Wells")).perform(click());
+        onView(withText("READ")).perform(click());
+        for (int i = 0; i < 5; i++) {
+            onView(withId(R.id.btn_next)).perform(click());
+        }
+        mActivityRule.finishActivity();
+
+        mActivityRule.launchActivity(new Intent());
+
+
+        onView(withId(R.id.et_page)).check(matches(withText("5")));
     }
 }
