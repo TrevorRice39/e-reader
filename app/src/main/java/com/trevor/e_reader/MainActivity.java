@@ -34,7 +34,7 @@ import java.text.ParseException;
 import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
-    public static String DATABASE_NAME = "Library";
+    public static String DATABASE_NAME = "library";
     public Books books;
 
     // current position in the book
@@ -151,6 +151,10 @@ public class MainActivity extends AppCompatActivity {
                         // invalid page number
                         Toast.makeText(getApplicationContext(), "Invalid page number", Toast.LENGTH_LONG).show();
                     }
+
+                    // update page in book
+                    updateBook(currentBookID);
+
                     // update the book on the screen
                     updateBookText();
                 }
@@ -256,15 +260,23 @@ public class MainActivity extends AppCompatActivity {
 
         }
         catch (StringIndexOutOfBoundsException e) { }
+
+        // add scrolling
         book.setMovementMethod(new ScrollingMovementMethod());
+
+        // scroll to top
         book.scrollTo(0, 0);
+
+        // update page number
         updatePageNum();
     }
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
         if (resultCode == Activity.RESULT_OK) {
+            // set current book to book id
             currentBook = readBook(data.getStringExtra(EXTRA_BOOK_ID));
+            // get the number of pages
             numPages = currentBook.length()/pageSize;
 
             updateBookText();
@@ -281,7 +293,7 @@ public class MainActivity extends AppCompatActivity {
             TextView tv_author = findViewById(R.id.tv_author);
             tv_author.setText("Author: ");
 
-
+            // update text
             updateBookText();
         }
     }

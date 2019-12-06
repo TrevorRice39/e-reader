@@ -25,22 +25,5 @@
             android:selectAllOnFocus="true"
             android:singleLine="true"
             android:title="Text Size" />
-        <ListPreference
-            android:defaultValue="1"
-            android:entries="@array/colors"
-            android:entryValues="@array/colors"
-            android:key="pref_text_color"
-            android:title="Text Color" />
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="pref_bold_text"
-            android:title="Bold Text" />
-    </PreferenceCategory>
-    <PreferenceCategory android:title="Reader Settings">
-
-        <SwitchPreference
-            android:defaultValue="false"
-            android:key="pref_night_mode"
-            android:title="Night Mode" />
     </PreferenceCategory>
 </PreferenceScreen>

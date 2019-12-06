@@ -2,20 +2,21 @@ package com.trevor.e_reader;
 
 import java.util.Date;
 
+// class to hold a book
 public class Book {
-    private String id;
-    private String title;
-    private String author;
-    private String url;
-    private int position;
-    private Date lastRead;
-    private String path;
+    private String id; // id in db
+    private String title; // title of book
+    private String author; // author of book
+    private String url; // url of book
+    private int position; // page in book user is on
+    private Date lastRead; // when it was last opened
+    private String path; // path to file on phone
 
     public Book(String title, String author, String url) {
         this.title = title;
         this.author = author;
         this.url = url;
-        this.lastRead = new Date(0L);
+        this.lastRead = new Date(0L); // lowest date
     }
 
     public Book() { }

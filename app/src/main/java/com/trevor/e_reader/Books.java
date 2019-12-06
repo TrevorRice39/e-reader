@@ -33,7 +33,7 @@ public class Books extends SQLiteOpenHelper {
     private static final int DATABASE_VERSION = 1;
 
     public static final String AVAILABLE_TABLE_NAME = "available"; // books that can be downloaded
-    public static final String KEY_ID = "_id";
+    public static final String KEY_ID = "_id"; // id of book
     public static final String KEY_TITLE = "title";
     public static final String KEY_AUTHOR = "author";
     public static final String KEY_URL = "url";
@@ -42,9 +42,9 @@ public class Books extends SQLiteOpenHelper {
 
     public static final String DOWNLOADED_TABLE_NAME = "downloaded"; // downloaded books
     // downloaded table uses the keys above as well as these
-    public static final String KEY_POSITION = "position";
-    public static final String KEY_PATH = "file_path";
-    public static final String KEY_DATE_LAST_READ = "date_read";
+    public static final String KEY_POSITION = "position"; // page user is on
+    public static final String KEY_PATH = "file_path";  // path to file on phone
+    public static final String KEY_DATE_LAST_READ = "date_read"; // date last read
 
     // id of books to read from in raw
     public int listOfBooksID;
@@ -59,6 +59,7 @@ public class Books extends SQLiteOpenHelper {
 
     @Override
     public void onCreate(SQLiteDatabase db){
+        // create available books table
         db.execSQL("CREATE TABLE " + AVAILABLE_TABLE_NAME + "("
                 + KEY_ID + " INTEGER PRIMARY KEY AUTOINCREMENT,"
                 + KEY_TITLE + " TEXT,"
@@ -66,6 +67,7 @@ public class Books extends SQLiteOpenHelper {
                 + KEY_URL + " TEXT,"
                 + KEY_IS_DOWNLOADED + " TEXT )");
 
+        // create downloaded books table
         db.execSQL("CREATE TABLE " + DOWNLOADED_TABLE_NAME + "("
                 + KEY_ID + " INTEGER PRIMARY KEY,"
                 + KEY_TITLE + " TEXT,"
@@ -75,42 +77,50 @@ public class Books extends SQLiteOpenHelper {
                 + KEY_PATH + " TEXT,"
                 + KEY_DATE_LAST_READ + " TEXT)" );
 
+        // initialize books
         initializeAvailableBooks(db);
     }
 
     // get available books from resources
     public void initializeAvailableBooks(SQLiteDatabase db) {
 
+        // for every book, add it to the db
         ArrayList<Book> books = readAvailableBooks();
         for (Book b : books) {
             addBook(b, AVAILABLE_TABLE_NAME, db);
         }
     }
 
+    // read the books that can be downloaded from raw file
     private ArrayList<Book> readAvailableBooks() {
         ArrayList<Book> books = new ArrayList<>();
         try {
+            // open the raw file
             InputStream is = context.getResources().openRawResource(this.listOfBooksID);
+            // make a reader
             BufferedReader reader = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
 
             String line = "";
+            // get the lines and parse out title, author, and url
             while ((line = reader.readLine()) != null) {
                 String[] columns = line.split(",");
                 Book book = new Book();
                 book.setTitle(columns[0]);
                 book.setAuthor(columns[1]);
                 book.setUrl(columns[2]);
+                // add the book
                 books.add(book);
             }
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        // return list of books
         return books;
     }
     public void addBook(Book book, String TABLE_NAME, SQLiteDatabase db) { ;
         ContentValues values = new ContentValues();
 
+        // if the book is going into the downloaded table
         if (TABLE_NAME.equals(DOWNLOADED_TABLE_NAME)) {
             values.put(KEY_ID, book.getId());
             values.put(KEY_DATE_LAST_READ, book.getDateLastRead().toString());
@@ -118,9 +128,11 @@ public class Books extends SQLiteOpenHelper {
             values.put(KEY_PATH, book.getPath());
         }
         else {
+            // if not, put that it isn't downloaded
             values.put(KEY_IS_DOWNLOADED, "false");
         }
 
+        // always insert title, author, and url
         values.put(KEY_TITLE, book.getTitle());
         values.put(KEY_AUTHOR, book.getAuthor());
         values.put(KEY_URL, book.getUrl());
@@ -136,12 +148,15 @@ public class Books extends SQLiteOpenHelper {
         onCreate(db);
     }
     
-//    // edit a transaction
+    // update book in db
     public void updateBook(Book b, boolean downloaded ) {
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // where key_id = our id
         String strFilter =  KEY_ID + "=?";
         ContentValues values = new ContentValues();
 
+        // put title, author, and url
         values.put(KEY_TITLE, b.getTitle());
         values.put(KEY_AUTHOR, b.getAuthor());
         values.put(KEY_URL, b.getUrl());
@@ -149,12 +164,12 @@ public class Books extends SQLiteOpenHelper {
         // record to update
         String[] whereArgs = {b.getId()};
 
-        // do the update
+        // if downloaded, put extra values
         if (downloaded){
             values.put(KEY_POSITION, b.getPosition());
             values.put(KEY_PATH, b.getPath());
             values.put(KEY_DATE_LAST_READ, b.getDateLastRead().toString());
-           db.update(DOWNLOADED_TABLE_NAME, values, strFilter, whereArgs);
+            db.update(DOWNLOADED_TABLE_NAME, values, strFilter, whereArgs);
         }
         else {
             db.update(AVAILABLE_TABLE_NAME, values, strFilter, whereArgs);
@@ -164,18 +179,23 @@ public class Books extends SQLiteOpenHelper {
     }
 
     public void deleteBook(String id) {
+        // deletes the file on the phone
         deleteBookFile(id);
 
         SQLiteDatabase db = this.getWritableDatabase();
+
+        // where key_id = our id
         String filter = KEY_ID +"=?";
 
         String whereArgs[] = {id};
 
+        // delete the book from db
         db.delete(DOWNLOADED_TABLE_NAME, filter, whereArgs);
         db.close();
 
     }
 
+    // deletes the file on the phone for a given book
     public boolean deleteBookFile(String id) {
         Book book = this.getBooks(id,DOWNLOADED_TABLE_NAME).get(0);
 
@@ -183,10 +203,11 @@ public class Books extends SQLiteOpenHelper {
 
         File bookFile = new File(path);
 
+        // return if the book was successfully deleted
         return bookFile.delete();
     }
 
-    // get a list of transactions matching a filter
+    // get the book last read
     public Book getLastReadBook() {
         Book book = new Book();
         SQLiteDatabase db = getReadableDatabase();
@@ -198,14 +219,14 @@ public class Books extends SQLiteOpenHelper {
                             + " ORDER BY " + KEY_DATE_LAST_READ + " DESC"
                             + " LIMIT 1", null);
 
-
         // anything to display?
         if(cursor.moveToFirst()){
             do {
+                // get the id and path
                 String id = cursor.getString(cursor.getColumnIndex(KEY_ID));
                 String path = "";
-                Date date = new Date();
 
+                // set the id and path
                 book.setId(id);
                 book.setPath(path);
             } while (cursor.moveToNext());
@@ -238,18 +259,24 @@ public class Books extends SQLiteOpenHelper {
         // anything to display?
         if(cursor.moveToFirst()){
             do {
+                // get the id, title, author, url, and path
                 String id = cursor.getString(cursor.getColumnIndex(KEY_ID));
                 String title = cursor.getString(cursor.getColumnIndex(KEY_TITLE));
                 String author = cursor.getString(cursor.getColumnIndex(KEY_AUTHOR));
                 String url = cursor.getString(cursor.getColumnIndex(KEY_URL));
                 String path = "";
                 Date date = new Date();
+
                 int position = 0;
+
+                // if we're getting books from the downloaded table
                 if (TABLE_NAME.equals("downloaded")) {
-                    //date = cursor.getString(cursor.getColumnIndex(KEY_DATE_LAST_READ));
+                    // get the position and path as well
                     position = Integer.parseInt(cursor.getString(cursor.getColumnIndex(KEY_POSITION)));
                     path = cursor.getString(cursor.getColumnIndex(KEY_PATH));
                 }
+
+                // set the books values and add it to the list
                 Book book = new Book();
                 book.setId(id);
                 book.setTitle(title);
@@ -263,6 +290,7 @@ public class Books extends SQLiteOpenHelper {
         }
         cursor.close();
 
+        // return list of books
         return books;
     }
 }
