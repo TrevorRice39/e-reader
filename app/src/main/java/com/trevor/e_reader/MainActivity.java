@@ -7,6 +7,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.text.method.ScrollingMovementMethod;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -244,13 +245,9 @@ public class MainActivity extends AppCompatActivity {
 
     // function to update the current book
     private void updateBookText() {
-        // get the scroll view
-        ScrollView sv_text = findViewById(R.id.sv_book_text);
-        // remove all children views
-        sv_text.removeAllViews();
 
         // make a textview
-        TextView book = new TextView(this);
+        TextView book = findViewById(R.id.tv_book);
         // set the font size
         book.setTextSize(font_size);
         try {
@@ -259,12 +256,8 @@ public class MainActivity extends AppCompatActivity {
 
         }
         catch (StringIndexOutOfBoundsException e) { }
-
-        // add the view to the scroll view
-        sv_text.addView(book);
-        // scroll to the top
-        sv_text.pageScroll(View.FOCUS_UP);
-        // update the page number edit text
+        book.setMovementMethod(new ScrollingMovementMethod());
+        book.scrollTo(0, 0);
         updatePageNum();
     }
     @Override
