@@ -1,6 +1,7 @@
 package com.trevor.e_reader;
 
 import android.content.Intent;
+import android.widget.TextView;
 
 import androidx.test.core.app.ApplicationProvider;
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -86,33 +87,15 @@ public class AndroidTests {
         onView(withText("View Library")).perform(click());
         onView(withText("The Time Machine - H.G. Wells")).perform(click());
         onView(withText("READ")).perform(click());
-        String actualBookText = "The Project Gutenberg EBook of The Time Machine, by H. G. Wells\n" +
-                "\n" +
-                "This eBook is for the use of anyone anywhere at no cost and with\n" +
-                "almost no restrictions whatsoever.  You may copy it, give it away or\n" +
-                "re-use it under the terms of the Project Gutenberg License included\n" +
-                "with this eBook or online at www.gutenberg.net\n" +
-                "\n" +
-                "\n" +
-                "Title: The Time Machine\n" +
-                "\n" +
-                "Author: H. G. Wells\n" +
-                "\n" +
-                "Release Date: October 2, 2004 [EBook #35]\n" +
-                "Last Updated: January 14, 2018\n" +
-                "\n" +
-                "Language: English\n" +
-                "\n" +
-                "Character set encoding: UTF-8\n" +
-                "\n" +
-                "*** START OF THIS PROJECT GUTENBERG EBOOK THE TIME MACHINE ***";
-        try {
-            Thread.sleep(5000);
-        }
-        catch (Exception e) {
 
-        }
+        String actualBookText = "The Project Gutenberg EBook of The Time Machine, by H. G. Wells";
+        TextView book = mActivityRule.getActivity().findViewById(R.id.tv_book);
+        String bookText = book.getText().toString().substring(0, 300);
+        bookText = bookText.substring(0, bookText.indexOf("Wells") + 6);
 
+        bookText = bookText.replaceAll("(\\r|\\n)", "");
+        actualBookText = actualBookText.replaceAll("(\\r|\\n)", "");
+        assertEquals(bookText, actualBookText);
 
         mActivityRule.finishActivity();
     }
